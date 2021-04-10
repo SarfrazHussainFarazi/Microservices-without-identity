@@ -6,6 +6,7 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GloboTicket.Services.Discount.Controllers
 {
@@ -23,8 +24,18 @@ namespace GloboTicket.Services.Discount.Controllers
         }
 
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        [HttpGet("code/{code}")]
+        [HttpGet("code/{code}"),Authorize]
         public async Task<IActionResult> GetDiscountForCode(string code)
+        {
+            var coupon = await _couponRepository.GetCouponByCode(code);
+
+            if (coupon == null)
+                return NotFound();
+
+            return Ok(_mapper.Map<CouponDto>(coupon));
+        }
+        [HttpGet("code1/{code1}"),Authorize(Roles ="Customer")]
+        public async Task<IActionResult> GetDiscountForCodeRoleBase(string code)
         {
             var coupon = await _couponRepository.GetCouponByCode(code);
 

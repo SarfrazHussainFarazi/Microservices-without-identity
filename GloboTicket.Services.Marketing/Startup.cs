@@ -25,6 +25,10 @@ namespace GloboTicket.Services.Marketing
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<MarketingDbContext>(options =>
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+            });
             services.AddControllers();
 
             services.AddHostedService<TimedBasketChangeEventService>();
@@ -43,10 +47,7 @@ namespace GloboTicket.Services.Marketing
             services.AddHttpClient<IBasketChangeEventService, BasketChangeEventService>(c =>
                 c.BaseAddress = new Uri(Configuration["ApiConfigs:ShoppingBasket:Uri"]));
 
-            services.AddDbContext<MarketingDbContext>(options =>
-            {
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
-            });
+          
 
         }
 

@@ -12,11 +12,11 @@ namespace GloboTicket.Services.Marketing
         {
             var host = CreateHostBuilder(args).Build();
 
-            using (var scope = host.Services.CreateScope())
-            {
-                var db = scope.ServiceProvider.GetRequiredService<MarketingDbContext>();
-                db.Database.Migrate();
-            }
+            //using (var scope = host.Services.CreateScope())
+            //{
+            //    var db = scope.ServiceProvider.GetRequiredService<MarketingDbContext>();
+            //    db.Database.Migrate();
+            //}
 
             host.Run();
         }

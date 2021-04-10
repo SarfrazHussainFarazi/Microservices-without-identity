@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GloboTicket.Services.Marketing.Migrations
 {
     [DbContext(typeof(MarketingDbContext))]
-    [Migration("20200815151434_Initial")]
-    partial class Initial
+    [Migration("20210410062400_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

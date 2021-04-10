@@ -26,6 +26,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\GloboTicket.Integration.Messages\GloboTicket.Integration.Messages.csproj" />
 		<ProjectReference Include="..\GloboTicket.Integration.MessagingBus\GloboTicket.Integration.MessagingBus.csproj" />
+		<ProjectReference Include="..\GloboTicket.Services.IdentityServerAsmbly\GloboTicket.Services.IdentityServerAsmbly.csproj" />
 	</ItemGroup>
 
 </Project>

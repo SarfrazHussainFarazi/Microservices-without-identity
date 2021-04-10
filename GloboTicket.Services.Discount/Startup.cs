@@ -1,8 +1,10 @@
 using AutoMapper;
 using GloboTicket.Services.Discount.DbContexts;
 using GloboTicket.Services.Discount.Repositories;
+using GloboTicket.Services.IdentityServerAsmbly.Jwt;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,13 +29,38 @@ namespace GloboTicket.Services.Discount
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddScoped<ICouponRepository, CouponRepository>();
-
+            services.AddJwt(Configuration, true);
+            services.addUsers(new HttpContextAccessor());
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Discount API", Version = "v1" });
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "JWT Authorization header using the Bearer scheme."
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                          new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                }
+                            },
+                            new string[] {}
+
+                    }
+                });
             });
         }
 
@@ -56,6 +83,7 @@ namespace GloboTicket.Services.Discount
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

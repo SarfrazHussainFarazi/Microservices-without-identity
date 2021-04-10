@@ -1,11 +1,13 @@
 using AutoMapper;
 using GloboTicket.Integration.MessagingBus;
+using GloboTicket.Services.IdentityServerAsmbly.Jwt;
 using GloboTicket.Services.Ordering.DbContexts;
 using GloboTicket.Services.Ordering.Extensions;
 using GloboTicket.Services.Ordering.Messaging;
 using GloboTicket.Services.Ordering.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -43,12 +45,39 @@ namespace GloboTicket.Services.Ordering
             services.AddSingleton(new OrderRepository(optionsBuilder.Options));
 
             services.AddSingleton<IMessageBus, AzServiceBusMessageBus>();
-
+            services.AddJwt(Configuration, true);
+            services.addUsers(new HttpContextAccessor());
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            services.AddControllers();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Ordering API", Version = "v1" });
-            });
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "JWT Authorization header using the Bearer scheme."
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                          new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                }
+                            },
+                            new string[] {}
 
+                    }
+                });
+            });
             services.AddSingleton<IAzServiceBusConsumer, AzServiceBusConsumer>();
 
             services.AddControllers();
@@ -75,7 +104,9 @@ namespace GloboTicket.Services.Ordering
 
             });
 
+            app.UseAuthentication();
             app.UseAuthorization();
+
 
 
             app.UseEndpoints(endpoints =>

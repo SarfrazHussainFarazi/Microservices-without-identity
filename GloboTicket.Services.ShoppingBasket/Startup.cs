@@ -14,6 +14,8 @@ using System;
 using System.Net.Http;
 using Polly;
 using Polly.Extensions.Http;
+using GloboTicket.Services.IdentityServerAsmbly.Jwt;
+using Microsoft.AspNetCore.Http;
 
 namespace GloboTicket.Services.ShoppingBasket
 {
@@ -51,9 +53,41 @@ namespace GloboTicket.Services.ShoppingBasket
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
 
+            
+
+            services.AddJwt(Configuration, true);
+            services.addUsers(new HttpContextAccessor());
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+
             services.AddSwaggerGen(c =>
             {
+
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Shopping Basket API", Version = "v1" });
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "JWT Authorization header using the Bearer scheme."
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                          new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                }
+                            },
+                            new string[] {}
+
+                    }
+                });
             });
         }
 
@@ -76,7 +110,9 @@ namespace GloboTicket.Services.ShoppingBasket
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
+
 
             app.UseEndpoints(endpoints =>
             {
