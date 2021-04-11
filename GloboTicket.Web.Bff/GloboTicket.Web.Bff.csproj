@@ -5,12 +5,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Controllers\jzjlk4tq.vqd~" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="wwwroot\img\" />
     <Folder Include="wwwroot\fonts\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.5" />
+    <PackageReference Include="Microsoft.Owin" Version="4.1.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GloboTicket.Services.IdentityServerAsmbly\GloboTicket.Services.IdentityServerAsmbly.csproj" />
   </ItemGroup>
 
 </Project>

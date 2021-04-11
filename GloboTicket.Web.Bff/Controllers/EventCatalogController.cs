@@ -5,6 +5,7 @@ using GloboTicket.Web.Models;
 using GloboTicket.Web.Models.Api;
 using GloboTicket.Web.Models.View;
 using GloboTicket.Web.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GloboTicket.Web.Controllers
@@ -14,12 +15,14 @@ namespace GloboTicket.Web.Controllers
         private readonly IEventCatalogService eventCatalogService;
         private readonly IShoppingBasketService shoppingBasketService;
         private readonly Settings settings;
+        private readonly IHttpContextAccessor _GetCurrentConext;
 
-        public EventCatalogController(IEventCatalogService eventCatalogService, IShoppingBasketService shoppingBasketService, Settings settings)
+        public EventCatalogController(IEventCatalogService eventCatalogService, IShoppingBasketService shoppingBasketService, Settings settings, IHttpContextAccessor IHttpContextAccessor)
         {
             this.eventCatalogService = eventCatalogService;
             this.shoppingBasketService = shoppingBasketService;
             this.settings = settings;
+            this._GetCurrentConext = IHttpContextAccessor;
         }
 
         //public async Task<IActionResult> Index(Guid categoryId)
@@ -51,8 +54,13 @@ namespace GloboTicket.Web.Controllers
 
         public async Task<IActionResult> Index(Guid categoryId)
         {
+            try
+            {
+                
+
+
             var currentBasketId = Request.Cookies.GetCurrentBasketId(settings);
-            var result = await eventCatalogService.GetCatalogBrowse(currentBasketId, categoryId);
+            var result = await eventCatalogService.GetCatalogBrowse(currentBasketId, categoryId, this._GetCurrentConext.HttpContext.Session.GetString("token"));
 
             return View(
                 new EventListModel
@@ -63,6 +71,12 @@ namespace GloboTicket.Web.Controllers
                     SelectedCategory = categoryId
                 }
             );
+            }
+            catch (Exception e)
+            {
+
+               return RedirectToAction( "Unathorized", "Account",new { msg=e.Message.ToString()});
+            }
         }
 
         [HttpPost]
@@ -73,8 +87,18 @@ namespace GloboTicket.Web.Controllers
 
         public async Task<IActionResult> Detail(Guid eventId)
         {
-            var ev = await eventCatalogService.GetEvent(eventId);
+            try
+            {
+
+           
+            var ev = await eventCatalogService.GetEvent(eventId, this._GetCurrentConext.HttpContext.Session.GetString("token"));
             return View(ev);
+            }
+            catch (Exception e)
+            {
+
+                return RedirectToAction("Unathorized", "Account", new { msg = e.Message.ToString() });
+            }
         }
     }
 }

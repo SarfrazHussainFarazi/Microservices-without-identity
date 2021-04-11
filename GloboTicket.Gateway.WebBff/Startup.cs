@@ -8,6 +8,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System;
 using GloboTicket.Gateway.WebBff.Url;
+using GloboTicket.Services.IdentityServerAsmbly.Jwt;
+using Microsoft.AspNetCore.Http;
 
 namespace GloboTicket.Gateway.WebBff
 {
@@ -42,9 +44,39 @@ namespace GloboTicket.Gateway.WebBff
             services.AddHttpClient<IOrderService, OrderService>(c =>
                 c.BaseAddress = new Uri(Configuration["ServiceUrls:Ordering"]));
 
+          
+            services.AddJwt(Configuration, false);
+            services.addUsers(new HttpContextAccessor());
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+  
+      
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "GloboTicket Gateway BFF for Web API", Version = "v1" });
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "JWT Authorization header using the Bearer scheme."
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                          new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                }
+                            },
+                            new string[] {}
+
+                    }
+                });
             });
         }
 
@@ -67,7 +99,7 @@ namespace GloboTicket.Gateway.WebBff
             });
 
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

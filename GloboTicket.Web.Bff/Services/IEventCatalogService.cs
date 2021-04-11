@@ -10,8 +10,8 @@ namespace GloboTicket.Web.Services
     {
         Task<IEnumerable<Event>> GetAll();
         Task<IEnumerable<Event>> GetByCategoryId(Guid categoryid);
-        Task<Event> GetEvent(Guid id);
+        Task<Event> GetEvent(Guid id, string token);
         Task<IEnumerable<Category>> GetCategories();
-        Task<CatalogBrowse> GetCatalogBrowse(Guid basketId, Guid categoryId);
+        Task<CatalogBrowse> GetCatalogBrowse(Guid basketId, Guid categoryId, string token);
     }
 }

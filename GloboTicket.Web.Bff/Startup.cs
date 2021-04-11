@@ -2,6 +2,7 @@ using GloboTicket.Web.Models;
 using GloboTicket.Web.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -37,6 +38,9 @@ namespace GloboTicket.Web
                 c.BaseAddress = new Uri(config["ApiConfigs:Discount:Uri"]));
 
             services.AddSingleton<Settings>();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddMemoryCache();
+            services.AddSession();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -55,14 +59,20 @@ namespace GloboTicket.Web
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            app.UseSession();
             app.UseAuthorization();
 
+            //app.UseEndpoints(endpoints =>
+            //{
+            //    endpoints.MapControllerRoute(
+            //        name: "default",
+            //        pattern: "{controller=EventCatalog}/{action=Index}/{id?}");
+            //});
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=EventCatalog}/{action=Index}/{id?}");
+                    pattern: "{controller=Account}/{action=signin}/{id?}");
             });
         }
     }

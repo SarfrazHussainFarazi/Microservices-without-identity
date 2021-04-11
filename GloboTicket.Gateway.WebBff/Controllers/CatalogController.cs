@@ -1,6 +1,7 @@
 ﻿using GloboTicket.Gateway.Shared.Basket;
 using GloboTicket.Gateway.WebBff.Models;
 using GloboTicket.Gateway.WebBff.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
@@ -34,7 +35,7 @@ namespace GloboTicket.Gateway.WebBff.Controllers
             return Ok(eventsPerCategory);
         }
 
-        [HttpGet("event/{eventId}")]
+        [HttpGet("event/{eventId}"),Authorize(Roles ="Customer")]
         public async Task<IActionResult> GetEventById(Guid eventId)
         {
             var eventById = await catalogService.GetEventById(eventId);
@@ -48,7 +49,7 @@ namespace GloboTicket.Gateway.WebBff.Controllers
             return Ok(categories);
         }
 
-        [HttpGet("catalogbrowse/{categoryId}/basket/{basketId}")]
+        [HttpGet("catalogbrowse/{categoryId}/basket/{basketId}"),Authorize]
         public async Task<IActionResult> GetCatalogBrowse(Guid basketId, Guid categoryId)
         {
 

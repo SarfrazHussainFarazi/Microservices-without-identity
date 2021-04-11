@@ -4,6 +4,7 @@ using GloboTicket.Web.Models.Api;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace GloboTicket.Web.Services
@@ -33,8 +34,11 @@ namespace GloboTicket.Web.Services
             return await response.ReadContentAs<List<Event>>();
         }
 
-        public async Task<Event> GetEvent(Guid id)
+        public async Task<Event> GetEvent(Guid id, string token)
         {
+            client.DefaultRequestHeaders.Authorization =
+   new AuthenticationHeaderValue("Bearer",
+   token);
             var response = await client.GetAsync($"/api/bffweb/events/event/{id}");
             return await response.ReadContentAs<Event>();
         }
@@ -51,9 +55,13 @@ namespace GloboTicket.Web.Services
 
         #region Gateway calls
 
-        public async Task<CatalogBrowse> GetCatalogBrowse(Guid basketId, Guid categoryId)
+        public async Task<CatalogBrowse> GetCatalogBrowse(Guid basketId, Guid categoryId, string token)
         {
+            client.DefaultRequestHeaders.Authorization =
+  new AuthenticationHeaderValue("Bearer",
+  token);
             var response = await client.GetAsync($"/api/bffweb/events/catalogbrowse/{categoryId}/basket/{basketId}");
+
             return await response.ReadContentAs<CatalogBrowse>();
         }
 
